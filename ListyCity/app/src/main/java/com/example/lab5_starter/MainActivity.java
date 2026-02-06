@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements CityDialogFragment.CityDialogListener {
 
     private Button addCityButton;
+    private Button deleteCityButton;
     private ListView cityListView;
 
     private FirebaseFirestore db;
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
 
         // Set views
         addCityButton = findViewById(R.id.buttonAddCity);
+        deleteCityButton = findViewById(R.id.buttonDeleteCity);
         cityListView = findViewById(R.id.listviewCities);
 
         // create city array
@@ -84,20 +87,26 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
             cityDialogFragment.show(getSupportFragmentManager(),"City Details");
         });
 
-        cityListView.setOnItemLongClickListener((adapterView, view, i, l) -> {
-            City city = cityArrayAdapter.getItem(i);
+        deleteCityButton.setOnClickListener(view -> {
+            // Get the selected item from ListView
+            int position = cityListView.getCheckedItemPosition();
 
-            // Show confirmation dialog
-            new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("Delete City")
-                    .setMessage("Delete " + city.getName() + "?")
-                    .setPositiveButton("Delete", (dialog, which) -> {
-                        removeCity(city);
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
+            if (position != ListView.INVALID_POSITION) {
+                City selectedCity = cityArrayAdapter.getItem(position);
 
-            return true;
+                // Show confirmation dialog
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Delete City")
+                        .setMessage("Are you sure you want to delete " + selectedCity.getName() + "?")
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            removeCity(selectedCity);
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            } else {
+                // No city selected
+                Toast.makeText(MainActivity.this, "Please select a city to delete", Toast.LENGTH_SHORT).show();
+            }
         });
 
     }
@@ -124,7 +133,6 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
         // Check logcat when running app
     }
 
-    @Override
     public void removeCity(City city){
         // Remove from local list
         cityArrayList.remove(city);
