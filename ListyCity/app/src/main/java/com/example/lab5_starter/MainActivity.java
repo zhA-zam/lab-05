@@ -109,11 +109,11 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
 
     @Override
     public void removeCity(City city){
-        cityArrayList.add(city);
+        cityArrayList.remove(city);
         cityArrayAdapter.notifyDataSetChanged();
 
         DocumentReference docRef = citiesRef.document(city.getName());
-        docRef.set(city);
+        docRef.delete();
     }
 
     public void addDummyData(){
