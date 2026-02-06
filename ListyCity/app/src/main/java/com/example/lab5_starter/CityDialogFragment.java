@@ -17,6 +17,7 @@ public class CityDialogFragment extends DialogFragment {
     interface CityDialogListener {
         void updateCity(City city, String title, String year);
         void addCity(City city);
+        void removeCity(City city);
     }
     private CityDialogListener listener;
 
@@ -61,19 +62,28 @@ public class CityDialogFragment extends DialogFragment {
             city = null;}
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        return builder
-                .setView(view)
-                .setTitle("City Details")
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Continue", (dialog, which) -> {
-                    String title = editMovieName.getText().toString();
-                    String year = editMovieYear.getText().toString();
-                    if (Objects.equals(tag, "City Details")) {
-                        listener.updateCity(city, title, year);
-                    } else {
-                        listener.addCity(new City(title, year));
-                    }
-                })
-                .create();
+        builder.setView(view)
+            .setTitle("City Details")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Continue", (dialog, which) -> {
+                String title = editMovieName.getText().toString();
+                String year = editMovieYear.getText().toString();
+                if (Objects.equals(tag, "City Details")) {
+                    listener.updateCity(city, title, year);
+                } else {
+                    listener.addCity(new City(title, year));
+                }
+            });
+
+        // remove city only when editing an existing city
+        if (city != null) {
+            builder.setNeutralButton("Delete", (dialog, which) -> {
+                // You'll need to add removeCity to the interface
+                if (listener instanceof MainActivity) {
+                    ((MainActivity) listener).removeCity(city);
+                }
+            });
+        }
+        return builder.create();
     }
 }
